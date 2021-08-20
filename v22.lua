@@ -44,23 +44,7 @@ Section:NewButton("Infinite Stamina", "Lets you jump without loosing stamina", f
 		end
 	end
 end)
-local Section = Tab:NewSection("Teams")
-Section:NewButton("Team Guards", "Changes your team to guards", function()
-	workspace.Remote.TeamEvent:FireServer("Bright blue")
-end)
-Section:NewButton("Team Inmate", "Changes your team to inmates", function()
-	workspace.Remote.TeamEvent:FireServer("Bright orange")
-end)
-Section:NewButton("Team Criminal", "Changes your team to criminals", function()
-	wait(0.3)
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-976.125183, 109.123924, 2059.99536)
 
-	wait(0.3)
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(918.77,100,2379.07)
-end)
-Section:NewButton("Team Neutral", "Changes your team to neutral", function()
-	workspace.Remote.TeamEvent:FireServer("Medium stone grey")
-end)
 local Section = Tab:NewSection("Tools")
 Section:NewButton("Remington 870", "Gives you a Remington 870", function()
 	game.Workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["Remington 870"].ITEMPICKUP)
@@ -114,18 +98,6 @@ Section:NewButton("Rapid Fire", "Shoot Faster", function()
 	local a = require(gun)
 	a.FireRate = 0
 end)
-Section:NewSlider("Spread (May not work)", "Modifies the spread value", 360, 0, function(s)
-	local plr = game.Players.localPlayer
-	local gun = plr.Backpack.M9.GunStates
-	local a = require(gun)
-	a.Spread = s
-end)
-Section:NewButton("Instant Reload (May not work)", "Reload faster", function()
-	local plr = game.Players.localPlayer
-	local gun = plr.Backpack.M9.GunStates
-	local a = require(gun)
-	a.ReloadTime = 0
-end)
 
 local Section = Tab:NewSection("Remington 870")
 Section:NewButton("Infinite Ammo", "Gives your Remington 870 an infinite ammo (math.huge)", function()
@@ -152,18 +124,6 @@ Section:NewButton("Rapid Fire", "Shoot Faster", function()
 	local a = require(gun)
 	a.FireRate = 0
 end)
-Section:NewSlider("Spread (May not work)", "Modifies the spread value", 360, 0, function(s)
-	local plr = game.Players.localPlayer
-	local gun = plr.Backpack['Remington 870'].GunStates
-	local a = require(gun)
-	a.Spread = s
-end)
-Section:NewButton("Instant Reload (May not work)", "Reload faster", function()
-	local plr = game.Players.localPlayer
-	local gun = plr.Backpack['Remington 870'].GunStates
-	local a = require(gun)
-	a.ReloadTime = 0
-end)
 
 local Section = Tab:NewSection("AK47")
 Section:NewButton("Infinite Ammo", "Gives your AK47 an infinite ammo (math.huge)", function()
@@ -183,18 +143,6 @@ Section:NewButton("Rapid Fire", "Shoot Faster", function()
 	local gun = plr.Backpack['AK-47'].GunStates
 	local a = require(gun)
 	a.FireRate = 0
-end)
-Section:NewSlider("Spread (May not work)", "Modifies the spread value", 360, 0, function(s)
-	local plr = game.Players.localPlayer
-	local gun = plr.Backpack['AK-47'].GunStates
-	local a = require(gun)
-	a.Spread = s
-end)
-Section:NewButton("Instant Reload (May not work)", "Reload faster", function()
-	local plr = game.Players.localPlayer
-	local gun = plr.Backpack['AK-47'].GunStates
-	local a = require(gun)
-	a.ReloadTime = 0
 end)
 
 --//SERVER
@@ -235,6 +183,30 @@ Section:NewButton("Arrest All Criminals", "Arrests every criminal on the server"
 		end
 	end
 	Player.Character.HumanoidRootPart.CFrame = cpos
+end)
+Section:NewButton("Play sounds", "Plays sounds to lag the server", function()
+	sounds = {}
+	function getSounds(loc)
+		if loc:IsA("Sound") then
+			table.insert(sounds,loc)
+		end
+		for _,obj in pairs(loc:GetChildren()) do
+			getSounds(obj)
+		end
+	end
+	getSounds(game)
+	game.DescendantAdded:connect(function(obj)
+		if obj:IsA("Sound") then
+			table.insert(sounds,obj)
+		end
+	end)
+	while wait(0.2) do
+		for _,sound in pairs(sounds) do
+			pcall(function()
+				sound:Play()
+			end)
+		end
+	end
 end)
 
 local Section = Tab:NewSection("Killing")
@@ -406,12 +378,12 @@ Section:NewButton("Prision", "Teleports you to the prision", function()
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(918.77,100,2379.07)
 end)
 Section:NewTextBox("Teleport to player", "Teleports to the player (name can be shortened)", function(plr)
-		for _,playerr in pairs(game:GetService("Players"):GetPlayers()) do
-			if string.sub(string.lower(playerr.Name), 1, string.len(plr)) == string.lower(plr) then
-				local pos = playerr.Character.HumanoidRootPart.CFrame
-				game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
-			end	
-		end
+	for _,playerr in pairs(game:GetService("Players"):GetPlayers()) do
+		if string.sub(string.lower(playerr.Name), 1, string.len(plr)) == string.lower(plr) then
+			local pos = playerr.Character.HumanoidRootPart.CFrame
+			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
+		end	
+	end
 end)
 
 --//TEAMS
@@ -421,6 +393,23 @@ Section:NewColorPicker("Team Color Picker", "Changes your nametag color to the v
 	local pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	game.Workspace.Remote.loadchar:InvokeServer(game.Players.LocalPlayer,color)
 	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
+end)
+local Section = Tab:NewSection("Teams")
+Section:NewButton("Team Guards", "Changes your team to guards", function()
+	workspace.Remote.TeamEvent:FireServer("Bright blue")
+end)
+Section:NewButton("Team Inmate", "Changes your team to inmates", function()
+	workspace.Remote.TeamEvent:FireServer("Bright orange")
+end)
+Section:NewButton("Team Criminal", "Changes your team to criminals", function()
+	wait(0.3)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-976.125183, 109.123924, 2059.99536)
+
+	wait(0.3)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(918.77,100,2379.07)
+end)
+Section:NewButton("Team Neutral", "Changes your team to neutral", function()
+	workspace.Remote.TeamEvent:FireServer("Medium stone grey")
 end)
 
 --//FE
@@ -505,6 +494,141 @@ Section:NewTextBox("Smite", "Rains bullets down on a player (name can be shorten
 			game.ReplicatedStorage.ReloadEvent:FireServer(Gun)
 			Gun.Parent = game.Players.LocalPlayer.Backpack
 		end	
+	end
+end)
+Section:NewTextBox("Lightning", "Lightning strikes the player (name can be shortened)", function(plr)
+	for _,playerr in pairs(game:GetService("Players"):GetPlayers()) do
+		if string.sub(string.lower(playerr.Name), 1, string.len(plr)) == string.lower(plr) then
+
+			local pos = game.Workspace[playerr.Name].Head.Position
+			local startingpos = Vector3.new(0,110,0)
+			local prevpos = nil
+
+			wait()
+
+			local pos = game.Workspace[playerr.Name].Head.CFrame.p
+			local posV = game.Workspace[playerr.Name].Head.Position
+			wait()
+			game.Workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["AK-47"].ITEMPICKUP)
+			local Gun = game.Players.LocalPlayer.Backpack['AK-47']
+
+			local Player = game.Players.LocalPlayer.Name
+			local Mouse = game.Players.LocalPlayer:GetMouse()
+			local Run = game:GetService("RunService")
+			local Sound = Gun.Handle.FireSound
+
+			function CreateRay(Point_A, Point_B)
+				local Ray = Ray.new(Point_A, (Point_B - Point_A).Unit * (2 ^ 31 - 1))
+				local Part, Pos = workspace:FindPartOnRay(Ray, game.Players.LocalPlayer.Character)
+				local Dist = (Point_A - Pos).Magnitude
+				local CFrame = CFrame.new(Point_A, Pos) * CFrame.new(0, 0, -Dist / 2)
+
+				return CFrame, Dist, Ray
+			end
+
+			function FireLaser(target,x,z,m,height)
+				if m == 2 then
+					coroutine.resume(coroutine.create(function()
+						local C, D, R = CreateRay(pos + startingpos, Vector3.new(x,height*10,z))
+						local Bullet = Instance.new("Part", Gun)
+						Bullet.BrickColor = BrickColor.Yellow()
+						Bullet.Material = "Neon"
+						Bullet.Anchored = true
+						Bullet.CanCollide = false
+						Bullet.Size = Vector3.new(0.125, 0.125, D)
+						Bullet.CFrame = C
+
+						local bulletTable = {}
+						table.insert(bulletTable, {
+							Hit = target,
+							Distance = D,
+							Cframe = C,
+							RayObject = R
+						})
+
+						game.ReplicatedStorage.ShootEvent:FireServer(bulletTable, Gun)
+						local C = Sound:Clone()
+						C.Parent = Gun
+						C:Play()
+						wait(0.25)
+						Bullet:Remove()
+					end))
+				elseif m == 1 then
+					coroutine.resume(coroutine.create(function()
+						local C, D, R = CreateRay(prevpos, target.Position)
+						local Bullet = Instance.new("Part", Gun)
+						Bullet.BrickColor = BrickColor.Yellow()
+						Bullet.Material = "Neon"
+						Bullet.Anchored = true
+						Bullet.CanCollide = false
+						Bullet.Size = Vector3.new(0.125, 0.125, D)
+						Bullet.CFrame = C
+
+						local bulletTable = {}
+						table.insert(bulletTable, {
+							Hit = target,
+							Distance = D,
+							Cframe = C,
+							RayObject = R
+						})
+
+						game.ReplicatedStorage.ShootEvent:FireServer(bulletTable, Gun)
+						local C = Sound:Clone()
+						C.Parent = Gun
+						C:Play()
+						wait(0.25)
+						Bullet:Remove()
+					end))
+				end
+			end
+
+
+			Gun.Parent = game.Players.LocalPlayer.Character
+			wait()
+			local a = require(Gun.GunStates)
+			a.Spread = 45
+			a.ReloadTime = 0
+			a.Bullets = 5
+
+			Gun = game.Players.LocalPlayer.Character['AK-47']
+			for ii = 1,3 do
+				for i = 1,10 do
+					local x = math.random(-3,3)
+					local z = math.random(-3,3)
+					if i == 1 then
+						local tpart = Instance.new("Part",workspace)
+						tpart.Transparency = 0.5
+						tpart.Anchored = true
+						tpart.CanCollide = false
+						tpart.Size = Vector3.new(1,1,1)
+						tpart.Position = posV + Vector3.new(x,100,z) - Vector3.new(0,i*10,0)
+						game.ReplicatedStorage.SoundEvent:FireServer(Sound, Gun)
+						FireLaser(tpart,x,z,2,i)
+						prevpos = posV + Vector3.new(x,100,z) - Vector3.new(0,i*10,0)
+						tpart:Destroy()
+					elseif i == 10 then
+						local tpart = game.Workspace[playerr.Name].Head
+						game.ReplicatedStorage.SoundEvent:FireServer(Sound, Gun)
+						FireLaser(tpart,x,z,1,i)
+						prevpos = posV + Vector3.new(x,100,z) - Vector3.new(0,i*10,0)
+					else
+						local tpart = Instance.new("Part",workspace)
+						tpart.Transparency = 0.5
+						tpart.Anchored = true
+						tpart.CanCollide = false
+						tpart.Size = Vector3.new(1,1,1)
+						tpart.Position = posV + Vector3.new(x,100,z) - Vector3.new(0,i*10,0)
+						game.ReplicatedStorage.SoundEvent:FireServer(Sound, Gun)
+						FireLaser(tpart,x,z,1,i)
+						prevpos = posV + Vector3.new(x,100,z) - Vector3.new(0,i*10,0)
+						tpart:Destroy()
+					end
+				end
+			end
+			wait()
+			game.ReplicatedStorage.ReloadEvent:FireServer(Gun)
+			Gun.Parent = game.Players.LocalPlayer.Backpack
+		end
 	end
 end)
 
